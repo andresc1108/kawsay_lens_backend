@@ -3,26 +3,21 @@ package com.kawsay;
 import com.kawsay.factory.DiagnosticReportFactory;
 import com.kawsay.model.DiagnosticReport;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  * Singleton Pattern - DiagnosticReportManager
  * Gestiona una instancia única del administrador de reportes diagnósticos
- * Garantiza que solo exista una instancia en toda la aplicación
  */
 public class DiagnosticReportManager {
     private static DiagnosticReportManager instance;
-    private int reportCount = 0;
     private static final Object lock = new Object();
 
-    /**
-     * Constructor privado - evita instanciación directa
-     */
-    private DiagnosticReportManager() {
-        this.reportCount = 0;
-    }
+    private final List<DiagnosticReport> reports = new ArrayList<>();
 
-    /**
-     * Obtener instancia única del manager (Thread-safe)
-     */
+    private DiagnosticReportManager() {}
+
     public static DiagnosticReportManager getInstance() {
         if (instance == null) {
             synchronized (lock) {
@@ -34,9 +29,6 @@ public class DiagnosticReportManager {
         return instance;
     }
 
-    /**
-     * Crear y registrar un nuevo reporte
-     */
     public DiagnosticReport createAndRegisterReport(
         String detection,
         double confidenceScore,
@@ -44,27 +36,22 @@ public class DiagnosticReportManager {
         String sessionId
     ) {
         DiagnosticReport report = DiagnosticReportFactory.createReport(
-            detection,
-            confidenceScore,
-            severity,
-            sessionId
+            detection, confidenceScore, severity, sessionId
         );
-        reportCount++;
-        System.out.println("Reporte #" + reportCount + " registrado: " + report.getReportId());
+        reports.add(report);
+        System.out.println("Reporte #" + reports.size() + " registrado: " + report.getReportId());
         return report;
     }
 
-    /**
-     * Obtener cantidad total de reportes procesados
-     */
-    public int getTotalReportsProcessed() {
-        return reportCount;
+    public List<DiagnosticReport> getAllReports() {
+        return new ArrayList<>(reports);
     }
 
-    /**
-     * Resetear el contador
-     */
+    public int getTotalReportsProcessed() {
+        return reports.size();
+    }
+
     public void reset() {
-        reportCount = 0;
+        reports.clear();
     }
 }
